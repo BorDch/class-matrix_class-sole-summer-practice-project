@@ -2,25 +2,25 @@
 
 #include <iostream>
 #include <vector>
+#include <complex>
 
 template<typename T = double>
 class Matrix {
 public:
-	static Matrix<T> IdentityMatrix(std::size_t);
-	static Matrix<T> RotationMatrix(std::size_t, std::size_t, std::size_t, const T&);
-public:
+	// class Matrix Constructors 
 	Matrix();
 	Matrix(std::size_t, std::size_t, const T& = T{});
 	Matrix(const std::initializer_list<std::initializer_list<T>>&);
 	Matrix(const Matrix<T>&);
-	Matrix<T>& operator=(const Matrix<T>&);
-public:
+
+	// STATIC methods for matrix transformation
+	static Matrix<T> IdentityMatrix(std::size_t);
+	static Matrix<T> RotationMatrix(std::size_t, std::size_t, std::size_t, const T&);
+
+	// Main methods for working with matrices
+	void print() const;
 	std::size_t rowsCount() const;
 	std::size_t colsCount() const;
-public:
-	std::vector<T>& operator[](std::size_t);
-	const std::vector<T>& operator[](std::size_t) const;
-public:
 	std::vector<T> getRow(std::size_t) const;
 	std::vector<T> getCol(std::size_t) const;
 
@@ -29,52 +29,41 @@ public:
 
 	void appendCol(const std::vector<T>&);
 	void appendRow(const std::vector<T>&);
-public:
+
 	void appendMatrixToRight(const Matrix<T>&);
 
 	Matrix<T> getSubMatrix(std::size_t, std::size_t, std::size_t, std::size_t) const;
-public:
+
 	T getDet() const;
 	T getTrace() const;
 	T getNorm() const;
-public:
+
+	Matrix<T> getTransposed() const;
 	Matrix<T> getUpTrapezoidal() const;
 	Matrix<T> getDownTrapezoidal() const;
+	Matrix<T> getConjugate() const;
 	std::pair<Matrix<T>, Matrix<T>> getLUDecomposition() const;
 	Matrix<T> getCholeskyDecomposition() const;
 	Matrix<T> getInversedMatrix() const;
 	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition() const;
-public:
+
+	// Matrix check methods
 	bool isSquare() const;
 	bool isSymmetric() const;
 	bool isUpperTriangular() const;
 	bool isLowerTriangular() const;
 	bool isDiagonal() const;
-	bool isOrthognal() const;
+	bool isOrthogonal() const;
 	bool isHermitian() const;
 	bool isConjugate() const;
 	bool isNormal() const;
-public:
-	Matrix<T>& operator+=(const Matrix<T>&);
-	Matrix<T>& operator-=(const Matrix<T>&);
-	Matrix<T>& operator*=(const Matrix<T>&);
-	Matrix<T>& operator*=(const T&);
-	Matrix<T>& operator/=(const T&);
-public:
-	template<typename V>
-	friend bool operator==(const Matrix<V>&, const Matrix<V>&);
-	template<typename V>
-	friend bool operator!=(const Matrix<V>&, const Matrix<V>&);
-public:
-	template<typename V>
-	friend Matrix<V> operator+(const Matrix<V>&, const Matrix<V>&);
 
-	template<typename V>
-	friend Matrix<V> operator-(const Matrix<V>&, const Matrix<V>&);
+	// Overloading operators and several friendly functions to working with matrices
+	Matrix<T>& operator=(const Matrix<T>&);
+	std::vector<T>& operator[](std::size_t);
+	const std::vector<T>& operator[](std::size_t) const;
 
-	template<typename V>
-	friend Matrix<V> operator*(const Matrix<V>&, const Matrix<V>&);
-
+	// Operator *
 	template<typename V>
 	friend std::vector<V> operator*(const Matrix<V>&, const std::vector<V>&);
 
@@ -82,36 +71,50 @@ public:
 	friend std::vector<V> operator*(const std::vector<V>&, const Matrix<V>&);
 
 	template<typename V>
+	friend Matrix<V> operator*(const Matrix<V>&, const Matrix<V>&);
+
+	template<typename V>
 	friend Matrix<V> operator*(const Matrix<V>&, const V&);
+	
 	template<typename V>
 	friend Matrix<V> operator*(const V&, const Matrix<V>&);
+
+	// Operator /
 	template<typename V>
 	friend Matrix<V> operator/(const Matrix<V>&, const V&);
-public:
+
+	// Operator +
+	template<typename V>
+	friend Matrix<V> operator+(const Matrix<V>&, const Matrix<V>&);
+
+	// Operator - 
+	template<typename V>
+	friend Matrix<V> operator-(const Matrix<V>&, const Matrix<V>&);
+
+	// Other arithmetic operators
+	Matrix<T>& operator+=(const Matrix<T>&);
+	Matrix<T>& operator-=(const Matrix<T>&);
+	Matrix<T>& operator*=(const Matrix<T>&);
+	Matrix<T>& operator*=(const T&);
+	Matrix<T>& operator/=(const T&);
+
+	// Boolean Comparison Operators
+	template<typename V>
+	friend bool operator==(const Matrix<V>&, const Matrix<V>&);
+	
+	template<typename V>
+	friend bool operator!=(const Matrix<V>&, const Matrix<V>&);
+
+	// Friendly functions to Input/Output
 	template<typename V>
 	friend std::istream& operator>>(std::istream&, Matrix<V>&);
+	
 	template<typename V>
 	friend std::ostream& operator<<(std::ostream&, const Matrix<V>&);
+	
 private:
 	std::size_t m, n;
 	std::vector<std::vector<T>> data;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #include "matrix.cpp"
