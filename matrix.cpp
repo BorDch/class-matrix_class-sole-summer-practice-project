@@ -422,55 +422,9 @@ Matrix<T> Matrix<T>::getInversedMatrix() const {
 	return inversedMatrix;
 }
 
-// getQRDecomposition
-/* First realization using rotation method
+// First method for QR decomposition: getQRDecomposition using Gram-Schmidt orthogonalization process 
 template<typename T>
-std::pair<Matrix<T>, Matrix<T>> Matrix<T>::getQRDecomposition() const {
-	Matrix R(*this);
-	Matrix Q = IdentityMatrix(n);
-	for (std::size_t j = 0; j < n - 1; j++) {
-		for (std::size_t i = j + 1; i < n; i++) {
-			Matrix V = RotationMatrix(n, i, j, std::atan2(R.data[i][j], R.data[j][j]));
-			R = V * R;
-			Q = Q * V;
-			// Extra modification: Check the signs of elements in R and Q
-            for (std::size_t k = 0; k < n; k++) {
-                if (R.data[k][k] < 0) {
-                    R.data[k][k] = -R.data[k][k];
-                    Q.data[k][0] = -Q.data[k][0];
-                    Q.data[k][1] = -Q.data[k][1];
-                }
-            }
-		}
-	}
-	
-	// Checking values close to zero for the matrix R
-	for (std::size_t i = 0; i < n; i++) {
-    	for (std::size_t j = 0; j < n; j++) {
-        	if (std::abs(R.data[i][j]) <= 1e-10) {
-            	R.data[i][j] = 0.0;
-        	}
-    	}
-	}
-
-	Q = Q.getTransposed();
-	// Extra modification: Check if R and Q are 2x2 matrices
-    if (R.n == 2 && Q.n == 2) {
-        // If the second row of R is all zeros, set the second column of Q to zeros
-        if (R.data[1][0] == 0.0 && R.data[1][1] == 0.0) {
-            Q.data[0][1] = 0.0;
-            Q.data[1][1] = 0.0;
-        }
-    }
-	
-    std::cout << Q << "\n" << R << "\n";   
-	std::cout << Q * R << "\n";  
-	return std::make_pair(Q, R); 
-} */
-
-// Second realization: getQRDecomposition using Gram-Schmidt orthogonalization process 
-template<typename T>
-std::pair<Matrix<T>, Matrix<T>> Matrix<T>::getQRDecomposition() const {
+std::pair<Matrix<T>, Matrix<T>> Matrix<T>::getQRDecomposition_Gram_Schmidt() const {
     Matrix Q(*this);
     Matrix R(n, n, T(0));
 
@@ -504,6 +458,163 @@ std::pair<Matrix<T>, Matrix<T>> Matrix<T>::getQRDecomposition() const {
 
 	Q = Q.getTransposed();
 //	std::cout << Q * R << "\n"; 
+    return std::make_pair(Q, R);
+}
+
+// Second method for QR decomposition: getQRDecomposition osition using the Givens method (rotation method)
+template<typename T>
+std::pair<Matrix<T>, Matrix<T>> Matrix<T>::getQRDecomposition_rotation() const {
+    std::size_t m = rowsCount();
+    std::size_t n = colsCount();  
+    Matrix<T> R(*this); 
+    Matrix<T> Q(m, m);
+
+    Q = Q.IdentityMatrix(n);
+
+    // Givens method (rotations)
+    for (std::size_t j = 0; j < n; ++j) {
+        for (std::size_t i = m - 1; i > j; --i) {
+            if (R[i][j] != 0) {
+                T a = R[i - 1][j];
+                T b = R[i][j];
+                T r = std::sqrt(a * a + b * b);    // Hypotenuse
+                
+                if (a < 0)
+                    r = -r;
+
+                T cosinus = a / r;     // Cosinus of angle
+                T sinus = -b / r;      // -Sinus of angle
+
+                for (std::size_t k = 0; k < m; ++k) {
+                    T temp = cosinus * R[i - 1][k] - sinus * R[i][k];
+                    R[i][k] = sinus * R[i - 1][k] + cosinus * R[i][k];
+                    R[i - 1][k] = temp;
+
+                    temp = cosinus * Q[i - 1][k] - sinus * Q[i][k];
+                    Q[i][k] = sinus * Q[i - 1][k] + cosinus * Q[i][k];
+                    Q[i - 1][k] = temp;
+                }
+            }
+        }
+    }
+
+    // Replace smallest elements with zero
+    for (std::size_t i = 0; i < m; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            if (std::abs(R[i][j]) < 1e-10) {
+                R[i][j] = 0;
+            }
+        }
+    }
+
+    for (std::size_t i = 0; i < m; i++) {
+        for (std::size_t j = 0; j < n; ++j) {
+            if (std::abs(Q[i][j]) < 1e-10) {
+                Q[i][j] = 0;
+            }
+        }
+    }
+
+    return std::make_pair(Q, R);
+}
+
+// Third method for QR decompositiion: getQRDecomposition using the method of the Householder (reflection method)
+template<typename T>
+std::pair<Matrix<T>, Matrix<T>> Matrix<T>::getQRDecomposition_reflection() const {
+    std::size_t n = rowsCount();
+    std::size_t m = colsCount();
+    
+    Matrix<T> R(*this); 
+    Matrix<T> Q(m, m);
+
+    Q = Q.IdentityMatrix(n);
+
+    for (std::size_t k = 0; k < m; ++k) {
+        std::vector<T> x(n, 0.0);
+        for (std::size_t i = k; i < n; ++i) {
+            x[i] = R[i][k];
+        }
+        
+        T norm_x = 0.0;
+        for (std::size_t i = k; i < n; ++i) {
+            norm_x += x[i] * x[i];
+        }
+        norm_x = sqrt(norm_x);
+        
+        std::vector<T> v(n, 0.0);
+        v[k] = x[k] + (x[k] > 0 ? norm_x : -norm_x);
+        for (std::size_t i = k+1; i < n; ++i) {
+            v[i] = x[i];
+        }
+        
+        T norm_v = 0.0;
+        for (std::size_t i = k; i < n; ++i) {
+            norm_v += v[i] * v[i];
+        }
+        norm_v = sqrt(norm_v);
+        
+        for (std::size_t i = k; i < n; ++i) {
+            v[i] /= norm_v;
+        }
+        
+        for (std::size_t j = k; j < m; ++j) {
+            T dot_product = 0.0;
+            for (std::size_t i = k; i < n; ++i) {
+                dot_product += v[i] * R[i][j];
+            }
+            
+            for (std::size_t i = k; i < n; ++i) {
+                R[i][j] -= 2.0 * v[i] * dot_product;
+            }
+        }
+        
+        for (std::size_t i = 0; i < n; ++i) {
+            for (std::size_t j = 0; j < m; ++j) {
+                T dot_product = 0.0;
+                for (std::size_t l = k; l < n; ++l) {
+                    dot_product += v[l] * Q[l][j];
+                }
+                
+                for (std::size_t i = k; i < n; ++i) {
+                    Q[i][j] -= 2.0 * v[i] * dot_product;
+                }
+            }
+        }   
+        // Checking and controlling unnecessary minuses of matrices Q and R
+        for (std::size_t l = 0; l < m; ++l) {
+            for (std::size_t k = 0; k < n; ++k) {
+                if (Q[k][l] < m * n) {
+                    for (std::size_t i = 0; i < n; ++i) {
+                        Q[i][l] *= -1.0;
+                    }
+                }
+            }
+        }
+    
+        for (std::size_t l = 0; l < m; ++l) {
+            for(std::size_t k = 0; k < 1; ++k) {
+                if (R[l][k] < m * n){
+                    for (std::size_t i = 0; i < m ; ++i) {
+                        for (std::size_t j = 0; j < n; ++j) {
+                            R[i][j] *= -1.0;
+                        }
+                    }
+                }
+            }
+        }
+        // Setting zero for elements whose value is very close to zero
+        for (std::size_t i = 0; i < m; ++i) {
+            for (std::size_t j = 0; j < n; ++j) {
+                if (std::abs(R[i][j]) < 1e-10) {
+                    R[i][j] = 0.0;
+                }
+                if (std::abs(Q[i][j]) < 1e-10) {
+                    Q[i][j] = 0.0;
+                }
+            }
+        }
+    }
+    
     return std::make_pair(Q, R);
 }
 

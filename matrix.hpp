@@ -45,7 +45,9 @@ public:
 	std::pair<Matrix<T>, Matrix<T>> getLUDecomposition() const;
 	Matrix<T> getCholeskyDecomposition() const;
 	Matrix<T> getInversedMatrix() const;
-	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition() const;
+	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition_Gram_Schmidt() const;
+	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition_rotation() const;
+	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition_reflection() const;
 
 	// Matrix check methods
 	bool isSquare() const;

@@ -3,8 +3,8 @@
 int main(){
     Matrix<double> A = {
         {1, 1, 1},
-        {-1, 2, 3},
-        {1, -2, -1}
+        {-1, 1, 1},
+        {1, 1, -1}
     };
     
     // Identity matrix
@@ -12,7 +12,7 @@ int main(){
     Matrix<double> identity = Matrix<double>::IdentityMatrix(3);
     identity.print();
     
-    // Rotation matrix !! Parametr hpi select in radians !!
+    // Rotation matrix !! Parametr phi select in radians !!
     std::cout <<"Rotation matrix of size 2" << std::endl;
     Matrix<double> rotation = Matrix<double>::RotationMatrix(3, 0, 1, 0.52);
     rotation.print();
@@ -44,6 +44,7 @@ int main(){
         std::cout << element << " ";
     }
     std::cout << std::endl;
+    
     /*
     // swapRows
     std::cout << "Matrix A after rows swapping: \n";
@@ -152,15 +153,38 @@ int main(){
     Matrix<double> cholesky = A.getCholeskyDecomposition();
     cholesky.print();
     
-    // getQRDecomposition
-    std::pair<Matrix<double>, Matrix<double>> QR_decomposition = A.getQRDecomposition();
-    Matrix<double> Q = QR_decomposition.first;
-    Matrix<double> R = QR_decomposition.second;
+    // getQRDecomposition using Gram_Schmidt method
+    std::cout << "QR decomposition of Matrix A using Gram-Schmidt orthogonalization process: \n";
+    std::pair<Matrix<double>, Matrix<double>> QR_decomposition_Gram_Schmidt = A.getQRDecomposition_Gram_Schmidt();
+    Matrix<double> Q = QR_decomposition_Gram_Schmidt.first;
+    Matrix<double> R = QR_decomposition_Gram_Schmidt.second;
 
     std::cout << "Orthogonal Matrix (Q):" << std::endl;
     Q.print();
     std::cout << "Upper Triangular Matrix (R):" << std::endl;
     R.print();
+
+    // getQRDecomposition using Givens method (rotation method)
+    std::cout << "QR decomposition of Matrix A using Givens method (rotation method): \n";
+    std::pair<Matrix<double>, Matrix<double>> QR_decomposition_rotation = A.getQRDecomposition_rotation();
+    Matrix<double> Q1 = QR_decomposition_rotation.first;
+    Matrix<double> R1 = QR_decomposition_rotation.second;
+
+    std::cout << "Orthogonal Matrix (Q):" << std::endl;
+    Q1.print();
+    std::cout << "Upper Triangular Matrix (R):" << std::endl;
+    R1.print();
+
+    // getQRDecomposition using Housholder method (reflection method)
+    std::cout << "QR decomposition of Matrix A using Housholder method (reflection method): \n";
+    std::pair<Matrix<double>, Matrix<double>> QR_decomposition_reflection = A.getQRDecomposition_reflection();
+    Matrix<double> Q2 = QR_decomposition_reflection.first;
+    Matrix<double> R2 = QR_decomposition_reflection.second;
+
+    std::cout << "Orthogonal Matrix (Q):" << std::endl;
+    Q2.print();
+    std::cout << "Upper Triangular Matrix (R):" << std::endl;
+    R2.print();
     
     // Complex matrix
     Matrix<std::complex<double>> Complex_Matrix(2, 2);
