@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 #include <complex>
+#include <ctime>
+#include <random>
 
 template<typename T = double>
 class Matrix {
@@ -48,6 +50,34 @@ public:
 	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition_Gram_Schmidt() const;
 	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition_rotation() const;
 	std::pair<Matrix<T>, Matrix<T>> getQRDecomposition_reflection() const;
+
+	// Eigen values (Non-const method)
+	std::vector<T> findEigenvalues(const Matrix<T>&, std::size_t);
+	
+	// Eigen values (Const method) Extra moificaton
+	std::vector<T> QR_findEigenvalues(std::size_t numIterations) const {
+    	Matrix<T> Ak(*this);
+        std::size_t n = Ak.rowsCount();
+
+        for (std::size_t iteration = 0; iteration < numIterations; ++iteration) {
+            std::pair<Matrix<T>, Matrix<T>> QR = Ak.getQRDecomposition_reflection();
+            Matrix<T> Q = QR.first;
+            Matrix<T> R = QR.second;
+            Ak = R * Q;
+        }
+
+        std::vector<T> eigenvalues(n);
+
+        for (std::size_t i = 0; i < n; ++i) {
+            eigenvalues[i] = Ak[i][i];
+        }
+
+        return eigenvalues;
+    } 
+
+	// Random Matrix Generation
+	static Matrix<T> FLOAT_RandomMatrix(std::size_t, std::size_t);
+	static Matrix<T> INT_RandomMatrix(std::size_t, std::size_t);
 
 	// Matrix check methods
 	bool isSquare() const;
@@ -113,7 +143,7 @@ public:
 	
 	template<typename V>
 	friend std::ostream& operator<<(std::ostream&, const Matrix<V>&);
-	
+
 private:
 	std::size_t m, n;
 	std::vector<std::vector<T>> data;

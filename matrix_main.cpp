@@ -1,12 +1,17 @@
 #include "matrix.hpp"
 
-int main(){
-    Matrix<double> A = {
-        {1, 1, 1},
-        {-1, 1, 1},
-        {1, 1, -1}
-    };
+int main() {
+
+    // Start measuring time
+    std::time_t startTime = std::clock();
+
+    // Random matrix generation with float value elements
+    // Matrix<double> A = Matrix<double>::FLOAT_RandomMatrix(10, 10);
+
+    // Random matrix generation with integer value elements
+    Matrix<double> A = Matrix<double>::INT_RandomMatrix(10, 10);
     
+    /*
     // Identity matrix
     std::cout <<"Identity matrix of size 3" << std::endl;
     Matrix<double> identity = Matrix<double>::IdentityMatrix(3);
@@ -22,11 +27,8 @@ int main(){
     std::cout << "Number of rows: " << size_m << std::endl;
     std::size_t size_n = A.colsCount();
     std::cout << "Number of cols: " << size_n << std::endl;
-    
-    // Print Matrix
-    std::cout << "Matrix A: \n";
-    A.print();
-    
+
+    /*
     // getRow
     std::size_t row_index = 1; 
     std::vector<double> row = A.getRow(row_index);
@@ -96,7 +98,7 @@ int main(){
     std::cout << "Matrix A after appending new matrix B: \n";
     A.appendMatrixToRight(B);
     A.print();
-    */
+    
     // getUpTrapezoidal
     std::cout << "Up Trapezoidal matrix A: \n";
     Matrix<double> UpTrapezoidal = A.getUpTrapezoidal();
@@ -185,7 +187,24 @@ int main(){
     Q2.print();
     std::cout << "Upper Triangular Matrix (R):" << std::endl;
     R2.print();
-    
+        
+    // Print Matrix
+    std::cout << "Matrix A: \n";
+    A.print();
+    */
+
+    std::cout << "Eigenvalues of matrix A: \n";
+    std::vector<double> eigenvalues = findEigenvalues(A, 1000);
+    for (std::size_t i = 0; i < eigenvalues.size(); ++i) {
+        std::cout << "lambda" << i + 1 << ": " << eigenvalues[i] << std::endl;
+    }
+    /*
+    std::cout << "(Const method) Eigenvalues of matrix A: \n";
+    std::vector<double> eigenvalues1 = A.QR_findEigenvalues(1000);
+    for (std::size_t i = 0; i < eigenvalues1.size(); ++i) {
+        std::cout << "lambda" << i + 1 << ": " << eigenvalues1[i] << std::endl;
+    }
+
     // Complex matrix
     Matrix<std::complex<double>> Complex_Matrix(2, 2);
     Complex_Matrix[0][0] = std::complex<double>(1.0, 0.0);
@@ -214,6 +233,14 @@ int main(){
     std::cout << "Matrix A is Normal? \n";
     bool check_normal = Complex_Matrix.isNormal();
     std::cout << check_normal << std::endl;
+    */
 
+    // End measuring time and calculate duration
+    std::time_t endTime = std::clock();
+    double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC;
+
+    // Display the elapsed time
+    std::cout << "Elapsed time: " << elapsedTime << " seconds" << std::endl;
+    
     return 0;
 }

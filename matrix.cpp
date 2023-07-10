@@ -618,6 +618,68 @@ std::pair<Matrix<T>, Matrix<T>> Matrix<T>::getQRDecomposition_reflection() const
     return std::make_pair(Q, R);
 }
 
+// QR algorithm that finds approximate eigenvalues of a matrix
+template<typename T>
+std::vector<T> findEigenvalues(const Matrix<T>& matrix, std::size_t numIterations) {
+    Matrix<T> A = matrix;
+    std::size_t n = A.rowsCount();
+
+    for (std::size_t iteration = 0; iteration < numIterations; ++iteration) {
+        std::pair<Matrix<T>, Matrix<T>> QR = A.getQRDecomposition_reflection();
+        Matrix<T>& Q = QR.first;
+        Matrix<T>& R = QR.second;
+        A = R * Q;
+    }
+
+    std::vector<T> eigenvalues(n);
+
+    for (std::size_t i = 0; i < n; ++i) {
+        eigenvalues[i] = A[i][i];
+    }
+
+    return eigenvalues;
+}
+
+// RandomMatrix with FLOAT values of elements
+template<typename T>
+Matrix<T> Matrix<T>::FLOAT_RandomMatrix(std::size_t m, std::size_t n) {
+    Matrix<T> matrix(m, n);
+
+    std::srand(std::time(nullptr));
+        
+    for (std::size_t i = 0; i < m; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            matrix[i][j] = static_cast<T>(std::rand()) / RAND_MAX;
+        }
+    }
+    
+    return matrix;
+}
+
+// RandomMatrix with INT values of elements
+template<typename T>
+Matrix<T> Matrix<T>::INT_RandomMatrix(std::size_t m, std::size_t n) {
+    Matrix<T> matrix(m, n);
+
+    double rangeMin = -20.0;
+    double rangeMax = 20.0;
+
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    for (std::size_t i = 0; i < m; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            double randomDouble = rangeMin + (std::rand() / (RAND_MAX / (rangeMax - rangeMin)));
+            T randomNum = static_cast<T>(std::round(randomDouble));
+            matrix[i][j] = randomNum;
+        if (matrix[i][j] == -0)
+            matrix[i][j] = 0;
+        }
+    
+    }
+    
+    return matrix;
+}
+
 // isSquare
 template<typename T>
 bool Matrix<T>::isSquare() const {
