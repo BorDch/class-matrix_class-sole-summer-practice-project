@@ -54,7 +54,7 @@ public:
 	// Eigen values (Non-const method)
 	std::vector<T> findEigenvalues(const Matrix<T>&, std::size_t);
 	
-	// Eigen values (Const method) Extra moificaton
+	// Eigen values (Const method) Extra modificaton
 	std::vector<T> QR_findEigenvalues(std::size_t numIterations) const {
     	Matrix<T> Ak(*this);
         std::size_t n = Ak.rowsCount();
